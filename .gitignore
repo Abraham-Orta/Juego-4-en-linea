@@ -1,0 +1,17 @@
+# Directorios de compilación de CMake
+build/
+/build/
+
+# Archivos de compilación de Make
+*.o
+*.out
+
+# Archivo ejecutable
+juego4enlinea
+
+# Archivos de configuración de IDEs
+.vscode/
+.idea/
+
+# Archivos de guardado de partidas
+*.txt

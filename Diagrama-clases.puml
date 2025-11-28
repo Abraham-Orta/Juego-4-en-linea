@@ -1,0 +1,96 @@
+@startuml
+title Diagrama de Clases Completo - Juego 4 en Línea (C++ / Español)
+
+' ===== Paquetes / Capas =====
+package "Capa de Presentación" {
+    class InterfazConsola {
+        + mostrarMenuPrincipal()
+        + mostrarMenuNuevoJuego()
+        + mostrarTablero(tablero: Tablero)
+        + solicitarColumna(idJugador: int)
+        + mostrarMensaje(msg: string)
+        + preguntarGuardar(): bool
+        + preguntarCargar(): string
+    }
+}
+
+package "Capa de Negocio" {
+    class Juego {
+        - tablero: Tablero
+        - jugador1: Jugador
+        - jugador2: Jugador
+        - turnoActual: int
+        - modoFinalizacion: int
+        + ejecutarTurno(): bool
+        + obtenerGanador(): int
+        + cambiarTurno()
+    }
+
+    class Tablero {
+        - filas: int
+        - columnas: int
+        - celdas: vector<vector<int>>
+        + columnaLlena(col: int): bool
+        + insertarFicha(col: int, idJugador: int): int
+        + retirarFicha(fila: int, col: int)
+        + obtenerCelda(fila: int, col: int): int
+        + cuatroEnLinea(fila: int, col: int, idJugador: int): bool
+        + contarSecuenciasDeCuatro(idJugador: int): int
+        + tableroLleno(): bool
+        + serializar(): string
+        + deserializar(texto: string): Tablero
+    }
+
+    abstract class Jugador {
+        # id: int
+        # nombre: string
+        + obtenerMovimiento(t: Tablero): int
+    }
+
+    class JugadorHumano {
+        + obtenerMovimiento(t: Tablero): int
+    }
+
+    class JugadorIA {
+        - profundidad: int
+        + obtenerMovimiento(t: Tablero): int
+        + minimax(t: Tablero, profundidad: int, alfa: int, beta: int, max: bool): int
+        + evaluarTablero(t: Tablero): int
+        + jugadaGanadoraInmediata(t: Tablero): int
+    }
+}
+
+package "Capa de Datos" {
+    class Persistencia {
+        + guardarPartida(j: Juego, ruta: string): bool
+        + cargarPartida(ruta: string): Juego
+    }
+}
+
+' ===== Relaciones y cardinalidades =====
+
+' Herencia
+Jugador <|-- JugadorHumano
+Jugador <|-- JugadorIA
+
+' Composición: un Juego contiene exactamente un Tablero
+Juego *-- "1" Tablero : contiene
+
+' Agregación: un Juego tiene 2 jugadores
+Juego o-- "1" Jugador : jugador1
+Juego o-- "1" Jugador : jugador2
+
+' Uso desde IA al Tablero (no agregación)
+JugadorIA ..> Tablero : usa
+
+' Dependencia de InterfazConsola hacia Juego
+InterfazConsola ..> Juego : usa
+
+' Dependencia de InterfazConsola hacia Tablero
+InterfazConsola ..> Tablero : muestra
+
+' Persistencia usa Juego y Tablero
+Persistencia ..> Juego : carga/guarda
+Persistencia ..> Tablero : serializa
+
+@enduml
